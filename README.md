@@ -12,7 +12,7 @@ Proyek Agro Petik Jeruk Mobile dikembangkan secara berkelompok sebagai bagian da
 | No. | Nama                 | NIM             | Jobdesk                                                                                   |
 | --- | -------------------- | --------------- | ----------------------------------------------------------------------------------------- |
 | 1   | Dwiki Ilman Nafian   | 253140707111035 | Pengembangan antarmuka mobile: Login, Beranda, navigasi Pesan Tiket, Riwayat, dan Profil. |
-| 2   | Shely Rahmatika Devi | 253140707111021 | **[Tugas dan tanggung jawab]**                                                      |
+| 2   | Shely Rahmatika Devi | 253140707111021 | Pengembangan antarmuka mobile: Register, PopUp, E-Tiket, Tiket saya, Jelahai aktivitas.   |
 
 ## Deskripsi Proyek
 
@@ -53,28 +53,6 @@ Fitur Booking & E-Tiket QR dirancang untuk mendukung proses pemesanan tiket seca
 ### 5. Tiket Saya & Riwayat
 
 Fitur ini dirancang untuk membantu pengguna mengakses informasi tiket yang dimiliki, meliputi tiket aktif, tiket untuk kunjungan mendatang, dan riwayat kunjungan. Fitur ini mendukung pengelolaan informasi pemesanan agar lebih mudah diakses melalui aplikasi.
-
-## Navigasi Aplikasi
-
-Untuk memudahkan pengguna mengakses layanan, aplikasi menyediakan navigasi utama yang meliputi:
-
-* **Beranda** — Menampilkan informasi wisata, informasi musim panen, rekomendasi aktivitas populer, serta akses menuju fitur utama.
-* **Tiket** — Menyediakan akses menuju layanan pemesanan tiket wisata.
-* **CitrusScan** — Menjadi akses menuju fitur pemindaian visual jeruk.
-* **Riwayat** — Menyediakan akses menuju informasi riwayat tiket dan kunjungan.
-* **Profil** — Menampilkan halaman informasi profil pengguna.
-
-## Kontribusi Pengembangan
-
-Dalam proyek ini, kontribusi pengembangan yang dikerjakan meliputi implementasi antarmuka dan navigasi pada beberapa halaman aplikasi, yaitu:
-
-* **Halaman Login**, sebagai antarmuka untuk pengguna masuk ke aplikasi.
-* **Halaman Beranda**, meliputi tampilan informasi utama, menu navigasi, dan akses menuju fitur pemesanan tiket.
-* **Navigasi Pesan Tiket**, untuk mengarahkan pengguna dari beranda menuju halaman pemesanan tiket.
-* **Halaman Riwayat**, sebagai antarmuka untuk menampilkan informasi riwayat pengguna.
-* **Halaman Profil**, sebagai antarmuka untuk menampilkan informasi pengguna.
-
-Pengembangan pada bagian tersebut berfokus pada implementasi tampilan mobile dan navigasi antarhalaman menggunakan Flutter. Status integrasi dengan backend dan layanan eksternal mengikuti implementasi yang tersedia pada masing-masing fitur.
 
 ## Teknologi yang Digunakan
 
