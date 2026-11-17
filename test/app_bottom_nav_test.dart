@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'package:flutter_agrowisatajeruk/pages/beranda_page.dart';
-import 'package:flutter_agrowisatajeruk/pages/citrus_scan_page.dart';
-import 'package:flutter_agrowisatajeruk/pages/pesan_tiket_page.dart';
-import 'package:flutter_agrowisatajeruk/pages/profile_page.dart';
-import 'package:flutter_agrowisatajeruk/pages/riwayat_page.dart';
-import 'package:flutter_agrowisatajeruk/pages/tiket_saya_page.dart';
+import 'package:flutter_agrowisatajeruk/features/home/presentation/pages/beranda_page.dart';
+import 'package:flutter_agrowisatajeruk/features/scan/presentation/pages/citrus_scan_page.dart';
+import 'package:flutter_agrowisatajeruk/features/booking/presentation/pages/pesan_tiket_page.dart';
+import 'package:flutter_agrowisatajeruk/features/profile/presentation/pages/profile_page.dart';
+import 'package:flutter_agrowisatajeruk/features/tickets/presentation/pages/riwayat_page.dart';
+import 'package:flutter_agrowisatajeruk/features/tickets/presentation/pages/tiket_saya_page.dart';
 
 import 'test_font_helpers.dart';
 
