@@ -1,25 +1,25 @@
 import 'package:flutter/material.dart';
 
 // Import seluruh halaman aplikasi
-import 'pages/splash_screen.dart';
-import 'pages/login_page.dart';
-import 'pages/register_page.dart';
-import 'pages/verifikasi_page.dart';
-import 'pages/beranda_page.dart';
-import 'pages/pesan_tiket_page.dart';
-import 'pages/detail_tiket_page.dart';
-import 'pages/pembayaran_page.dart';
-import 'pages/pembayaran_berhasil_page.dart';
-import 'pages/tiket_saya_page.dart';
-import 'pages/riwayat_page.dart';
-import 'pages/notifikasi_page.dart';
-import 'pages/citrus_scan_page.dart';
-import 'pages/profile_page.dart';
-import 'pages/aktivitas_page.dart';
-import 'pages/petik_jeruk_page.dart';
-import 'pages/edukasi_page.dart';
-import 'pages/wawancara_page.dart';
-import 'pages/penelitian_page.dart';
+import 'features/auth/presentation/pages/splash_screen.dart';
+import 'features/auth/presentation/pages/login_page.dart';
+import 'features/auth/presentation/pages/register_page.dart';
+import 'features/auth/presentation/pages/verifikasi_page.dart';
+import 'features/home/presentation/pages/beranda_page.dart';
+import 'features/booking/presentation/pages/pesan_tiket_page.dart';
+import 'features/booking/presentation/pages/detail_tiket_page.dart';
+import 'features/payment/presentation/pages/pembayaran_page.dart';
+import 'features/payment/presentation/pages/pembayaran_berhasil_page.dart';
+import 'features/tickets/presentation/pages/tiket_saya_page.dart';
+import 'features/tickets/presentation/pages/riwayat_page.dart';
+import 'features/notification/presentation/pages/notifikasi_page.dart';
+import 'features/scan/presentation/pages/citrus_scan_page.dart';
+import 'features/profile/presentation/pages/profile_page.dart';
+import 'features/home/presentation/pages/aktivitas_page.dart';
+import 'features/activity/presentation/pages/petik_jeruk_page.dart';
+import 'features/education/presentation/pages/edukasi_page.dart';
+import 'features/education/presentation/pages/wawancara_page.dart';
+import 'features/education/presentation/pages/penelitian_page.dart';
 
 void main() {
   runApp(const MyApp());

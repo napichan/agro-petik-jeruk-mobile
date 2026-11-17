@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_agrowisatajeruk/services/auth_service.dart';
+import 'package:flutter_agrowisatajeruk/features/auth/data/datasources/auth_service.dart';
 
 void main() {
   setUp(() {

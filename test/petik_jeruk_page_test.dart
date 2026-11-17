@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'package:flutter_agrowisatajeruk/pages/aktivitas_page.dart';
-import 'package:flutter_agrowisatajeruk/pages/petik_jeruk_page.dart';
-import 'package:flutter_agrowisatajeruk/pages/profile_page.dart';
+import 'package:flutter_agrowisatajeruk/features/home/presentation/pages/aktivitas_page.dart';
+import 'package:flutter_agrowisatajeruk/features/activity/presentation/pages/petik_jeruk_page.dart';
+import 'package:flutter_agrowisatajeruk/features/profile/presentation/pages/profile_page.dart';
 
 import 'test_font_helpers.dart';
 
