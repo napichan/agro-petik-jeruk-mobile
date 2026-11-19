@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:flutter_agrowisatajeruk/core/models/activity_item.dart';
+import 'package:flutter_agrowisatajeruk/core/models/facility.dart';
 
 import '../../domain/entities/education_activity.dart';
 
@@ -11,15 +12,17 @@ class EducationLocalDataSource implements EducationDataSource {
   const EducationLocalDataSource();
 
   static const String _alamat =
-      'Jl. Watu Gede, RT03/RW.2, Selorejo Kec. Dau, Kabupaten Malang';
-  static const String _titikKumpulJudul = 'Pintu Masuk Utama (Blok A)';
-  static const String _titikKumpulAlamat =
-      'Agro Wisata Petik Jeruk, Desa Solorejo, Kec. Dau, Kota Malang';
-  static const List<({IconData ikon, String label})> _fasilitas = [
-    (ikon: Icons.local_parking, label: 'Parker'),
-    (ikon: Icons.wc, label: 'Toilet'),
-    (ikon: Icons.cottage, label: 'Gubuk'),
-    (ikon: Icons.storefront, label: 'Toko'),
+      'Jl. Watu Gede, RT.010/RW.2, Selorejo, Kec. Dau, Kabupaten Malang.';
+  static const String _durasi = '2 – 3 Jam';
+  static const int _hargaEdukasi = 35000;
+  static const int _hargaWawancara = 50000;
+  static const int _hargaPenelitian = 200000;
+
+  static const List<Facility> _fasilitas = [
+    Facility(label: 'Parkir', icon: FacilityIconType.parking),
+    Facility(label: 'Toilet', icon: FacilityIconType.toilet),
+    Facility(label: 'Gubuk', icon: FacilityIconType.hut),
+    Facility(label: 'Toko', icon: FacilityIconType.store),
   ];
 
   @override
@@ -32,110 +35,90 @@ class EducationLocalDataSource implements EducationDataSource {
   }
 
   static const EducationActivity _edukasi = EducationActivity(
-    nama: 'Edukasi Budidaya Tani',
-    alamat: _alamat,
-    durasi: '2 jam',
-    harga: 35000,
-    rating: '4.9',
-    jumlahUlasan: '950',
-    aktivitas: [
-      (
-        ikon: Icons.school,
-        teks: 'Belajar budidaya jeruk dari petani berpengalaman',
+    title: 'Edukasi Budidaya Jeruk',
+    address: _alamat,
+    duration: _durasi,
+    price: _hargaEdukasi,
+    heroImage: 'assets/images/budidaya.png',
+    activities: [
+      ActivityItem(
+        text: 'Praktik teknik pemangkasan & okulasi dahan jeruk',
+        icon: ActivityIconType.pruning,
+        tone: ActivityTone.green,
       ),
-      (
-        ikon: Icons.grass,
-        teks: 'Demo penanaman & perawatan pohon jeruk',
+      ActivityItem(
+        text: 'Pengenalan varietas unggul & pemupukan organik',
+        icon: ActivityIconType.recycle,
+        tone: ActivityTone.salmon,
       ),
-      (
-        ikon: Icons.quiz,
-        teks: 'Sesi tanya jawab seputar pertanian jeruk',
+      ActivityItem(
+        text: 'Cara perawatan tanaman & pencegahan hama buah',
+        icon: ActivityIconType.pest,
+        tone: ActivityTone.blue,
       ),
-      (
-        ikon: Icons.emoji_events,
-        teks: 'Sertifikat kunjungan edukasi untuk kelompok',
+      ActivityItem(
+        text: 'Praktik seleksi & petik buah jeruk siap panen',
+        icon: ActivityIconType.basket,
+        tone: ActivityTone.teal,
       ),
     ],
-    fasilitas: _fasilitas,
-    titikKumpulJudul: _titikKumpulJudul,
-    titikKumpulAlamat: _titikKumpulAlamat,
-    reviewer: 'Budi Santoso',
-    reviewTeks:
-        '"Anak-anak sangat antusias belajar budidaya jeruk. '
-        'Petaninya ramah dan penjelasannya mudah dipahami '
-        'oleh keluarga maupun pelajar."',
+    facilities: _fasilitas,
   );
 
   static const EducationActivity _wawancara = EducationActivity(
-    nama: 'Wawancara Petani',
-    alamat: _alamat,
-    durasi: '1 - 2 jam',
-    harga: 50000,
-    rating: '4.9',
-    jumlahUlasan: '420',
-    aktivitas: [
-      (
-        ikon: Icons.record_voice_over,
-        teks: 'Wawancara langsung dengan petani jeruk',
+    title: 'Wawancara Pengelola',
+    address: _alamat,
+    duration: _durasi,
+    price: _hargaWawancara,
+    heroImage: 'assets/images/wawancara.png',
+    activities: [
+      ActivityItem(
+        text: 'Wawancara & tanya jawab langsung petani',
+        icon: ActivityIconType.checkGreen,
+        tone: ActivityTone.green,
       ),
-      (
-        ikon: Icons.travel_explore,
-        teks: 'Kunjungan lapangan ke area kebun jeruk',
+      ActivityItem(
+        text: 'Data budidaya & sejarah kebun',
+        icon: ActivityIconType.book,
+        tone: ActivityTone.yellow,
       ),
-      (
-        ikon: Icons.menu_book,
-        teks: 'Dokumentasi praktik budidaya & panen',
-      ),
-      (
-        ikon: Icons.handshake,
-        teks: 'Diskusi kelompok bersama pengelola kebun',
+      ActivityItem(
+        text: 'Izin dokumentasi foto/audio riset',
+        icon: ActivityIconType.document,
+        tone: ActivityTone.green,
       ),
     ],
-    fasilitas: _fasilitas,
-    titikKumpulJudul: _titikKumpulJudul,
-    titikKumpulAlamat: _titikKumpulAlamat,
-    reviewer: 'Siti Rahma',
-    reviewTeks:
-        '"Petani sangat terbuka dan komunikatif. Materi wawancara '
-        'lengkap, cocok untuk keperluan penelitian maupun tugas kuliah."',
+    facilities: _fasilitas,
   );
 
   static const EducationActivity _penelitian = EducationActivity(
-    nama: 'Penelitian Lapangan',
-    alamat: _alamat,
-    durasi: '4 - 8 jam',
-    harga: 200000,
-    rating: '4.9',
-    jumlahUlasan: '180',
-    aktivitas: [
-      (
-        ikon: Icons.science,
-        teks: 'Akses area kebun untuk pengambilan data',
+    title: 'Penelitian',
+    address: _alamat,
+    duration: _durasi,
+    price: _hargaPenelitian,
+    heroImage: 'assets/images/penelitian.png',
+    activities: [
+      ActivityItem(
+        text: 'Pengambilan sampel daun, tanah & buah jeruk',
+        icon: ActivityIconType.checkGreen,
+        tone: ActivityTone.green,
       ),
-      (
-        ikon: Icons.biotech,
-        teks: 'Pendampingan teknis oleh petugas kebun',
+      ActivityItem(
+        text: 'Observasi agroklimat & data varietas jeruk',
+        icon: ActivityIconType.observation,
+        tone: ActivityTone.salmon,
       ),
-      (
-        ikon: Icons.assignment,
-        teks: 'Izin pengambilan sampel tanah & daun jeruk',
+      ActivityItem(
+        text: 'Akses data plot riset, uji brix & lab kebun',
+        icon: ActivityIconType.data,
+        tone: ActivityTone.blue,
       ),
-      (
-        ikon: Icons.groups,
-        teks: 'Ruang kerja sementara untuk tim peneliti',
+      ActivityItem(
+        text: 'Didampingi teknisi kebun & izin riset resmi',
+        icon: ActivityIconType.farmer,
+        tone: ActivityTone.lime,
       ),
     ],
-    fasilitas: [
-      (ikon: Icons.local_parking, label: 'Parkirr'),
-      (ikon: Icons.wc, label: 'Toilet'),
-      (ikon: Icons.cottage, label: 'Gubuk'),
-      (ikon: Icons.storefront, label: 'Toko'),
-    ],
-    titikKumpulJudul: _titikKumpulJudul,
-    titikKumpulAlamat: _titikKumpulAlamat,
-    reviewer: 'Andi Pratama',
-    reviewTeks:
-        '"Fasilitas penelitian memadai dan petugas sangat kooperatif. '
-        'Sampel yang diambil lengkap dengan pendampingan teknisnya."',
+    facilities: _fasilitas,
   );
 }

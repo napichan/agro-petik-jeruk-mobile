@@ -146,16 +146,26 @@ class DetailTiketPage extends StatelessWidget {
                     padding: const EdgeInsets.all(20.0),
                     child: Column(
                       children: [
-                        // Dummy QR Image Box
+                        // Barcode / QR tiket (aset lokal)
                         Container(
-                          width: 150,
-                          height: 150,
+                          width: 170,
+                          height: 170,
+                          padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            image: const DecorationImage(
-                              image: NetworkImage("https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/1200px-QR_code_for_mobile_English_Wikipedia.svg.png"),
-                              fit: BoxFit.cover,
-                            )
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.grey.shade200),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.04),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Image.asset(
+                            'assets/images/SVG barcode.png',
+                            fit: BoxFit.contain,
                           ),
                         ),
                         const SizedBox(height: 16),

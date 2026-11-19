@@ -1,15 +1,17 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_agrowisatajeruk/core/di/dependencies.dart';
 import 'package:flutter_agrowisatajeruk/core/theme/app_colors.dart';
+import 'package:flutter_agrowisatajeruk/core/theme/app_sizes.dart';
 import 'package:flutter_agrowisatajeruk/shared/widgets/app_bottom_nav.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:iconify_flutter/iconify_flutter.dart';
-import 'package:iconify_flutter/icons/mdi.dart';
 
 import '../../domain/entities/user_profile.dart';
 import '../viewmodels/profile_view_model.dart';
+import '../widgets/profile_app_bar.dart';
+import '../widgets/profile_avatar.dart';
 
-/// Halaman Profile â€” sesuai desain UI "Profile".
+/// Halaman Profile — sesuai desain UI "Profile".
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
@@ -34,15 +36,51 @@ class _ProfilePageState extends State<ProfilePage> {
 
   UserProfile get _profile => _viewModel.profile!;
 
+  /// Membuka Edit Profil, lalu memuat ulang data setelah perubahan disimpan.
+  Future<void> _openEditProfile() async {
+    final updated = await Navigator.pushNamed(context, '/edit-profil');
+    if (!mounted) return;
+    if (updated == true) await _viewModel.load();
+  }
+
+  Future<void> _signOut() async {
+    final success = await _viewModel.signOut();
+    if (!mounted) return;
+
+    if (!success) {
+      _showMessage(_viewModel.errorMessage ?? 'Gagal keluar dari akun.');
+      return;
+    }
+
+    // Sesi berakhir: kembali ke halaman Login yang sudah tersedia.
+    Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
       listenable: _viewModel,
       builder: (context, _) {
         if (_viewModel.profile == null) {
-          return const Scaffold(
+          return Scaffold(
             backgroundColor: kBgColor,
-            body: Center(child: CircularProgressIndicator()),
+            appBar: const ProfileAppBar(title: 'Profile'),
+            body: Center(
+              child: _viewModel.errorMessage != null
+                  ? _buildErrorState()
+                  : const CircularProgressIndicator(color: kPrimaryOrange),
+            ),
           );
         }
         return _buildPage(context);
@@ -50,247 +88,56 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  Widget _buildErrorState() {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            _viewModel.errorMessage!,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.inter(fontSize: 13, color: kTextSecondary),
+          ),
+          const SizedBox(height: 12),
+          TextButton(
+            onPressed: _viewModel.load,
+            child: const Text('Coba Lagi'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildPage(BuildContext context) {
     return Scaffold(
       backgroundColor: kBgColor,
-      appBar: AppBar(
-        backgroundColor: kBgColor,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios,
-            color: Colors.black87,
-            size: 20,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          "Profile",
-          style: GoogleFonts.inter(
-            color: Colors.black87,
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
-        ),
-      ),
+      appBar: const ProfileAppBar(title: 'Profile'),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        padding: const EdgeInsets.fromLTRB(
+          AppSizes.screenHorizontal,
+          4,
+          AppSizes.screenHorizontal,
+          AppSizes.scrollBottomPadding,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // â”€â”€ Kartu Identitas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 15,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  // Avatar
-                  Container(
-                    width: 70,
-                    height: 70,
-                    decoration: BoxDecoration(
-                      color: kPrimaryOrange.withValues(alpha: 0.15),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: Text(
-                        _profile.initials,
-                        style: GoogleFonts.inter(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: kPrimaryOrange,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  // Nama
-                  Text(
-                    _profile.fullName,
-                    style: GoogleFonts.inter(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  // Email & No. HP
-                  Text(
-                    '${_profile.email} • ${_profile.phone}',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: Colors.grey.shade500,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 10),
-                  // Badge Member Setia
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 5,
-                    ),
-                    decoration: BoxDecoration(
-                      color: kPrimaryGreen.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: kPrimaryGreen.withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.verified,
-                          size: 14,
-                          color: kPrimaryGreen,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          _profile.memberLabel,
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: kPrimaryGreen,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // â”€â”€ Statistik: Tiket, Kunjungan, Poin â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 15,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  for (var i = 0; i < _profile.stats.length; i++) ...[
-                    if (i > 0) _statDivider(),
-                    _statItem(
-                      label: _profile.stats[i].label,
-                      value: _profile.stats[i].value,
-                      color: _profile.stats[i].isHighlighted
-                          ? kPrimaryOrange
-                          : Colors.black87,
-                    ),
-                  ],
-                ],
-              ),
-            ),
-
+            _buildIdentityCard(),
             const SizedBox(height: 24),
-
-            // â”€â”€ Label Menu Akun â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Text(
-              "MENU AKUN",
+              'MENU AKUN',
               style: GoogleFonts.inter(
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: FontWeight.w700,
-                color: Colors.black87,
-                letterSpacing: 0.8,
+                color: kTextPrimary,
+                letterSpacing: 1,
               ),
             ),
-
             const SizedBox(height: 10),
-
-            // â”€â”€ Menu Akun â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 15,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  _menuTile(
-                    context,
-                    icon: Mdi.account_outline,
-                    label: "Informasi Akun",
-                    onTap: () => _comingSoon(context, "Informasi Akun"),
-                    isFirst: true,
-                  ),
-                  _divider(),
-                  _menuTile(
-                    context,
-                    icon: Mdi.help_circle_outline,
-                    label: "Pusat Bantuan",
-                    onTap: () => _comingSoon(context, "Pusat Bantuan"),
-                  ),
-                  _divider(),
-                  _menuTile(
-                    context,
-                    icon: Mdi.information_outline,
-                    label: "Aturan & Info Kebun",
-                    onTap: () => _comingSoon(context, "Aturan & Info Kebun"),
-                    isLast: true,
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 32),
-
-            // â”€â”€ Tombol Keluar Akun â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () => Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  '/login',
-                  (route) => false,
-                ),
-                icon: const Icon(Icons.logout_rounded, color: kPrimaryOrange, size: 20),
-                label: Text(
-                  "Keluar Akun",
-                  style: GoogleFonts.inter(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: kPrimaryOrange,
-                  ),
-                ),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  side: const BorderSide(color: kPrimaryOrange, width: 1.5),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  backgroundColor: Colors.white,
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
+            _buildMenuCard(context),
+            const SizedBox(height: 24),
+            _buildSignOutButton(),
           ],
         ),
       ),
@@ -299,79 +146,78 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // â”€â”€ Widget Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Kartu identitas ──────────────────────────────────────────────────────
 
-  static Widget _statItem({
-    required String label,
-    required String value,
-    required Color color,
-  }) {
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 18),
-        child: Column(
-          children: [
-            Text(
-              value,
-              style: GoogleFonts.inter(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
+  Widget _buildIdentityCard() {
+    return _card(
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+      child: Column(
+        children: [
+          ProfileAvatar(
+            initials: _profile.initials,
+            photoBytes: _profile.photoBytes,
+            size: 88,
+          ),
+          const SizedBox(height: 14),
+          Text(
+            _profile.fullName,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.inter(
+              fontSize: 17,
+              fontWeight: FontWeight.bold,
+              color: kTextPrimary,
             ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: Colors.grey.shade500,
-              ),
-              textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '${_profile.email} • ${_profile.phone}',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: kTextMuted,
+              height: 1.5,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  static Widget _statDivider() => Container(
-        width: 1,
-        height: 40,
-        color: Colors.grey.shade200,
-      );
+  // ── Menu akun ────────────────────────────────────────────────────────────
 
-  static Widget _divider() =>
-      Divider(height: 1, indent: 56, endIndent: 16, color: Colors.grey.shade100);
+  Widget _buildMenuCard(BuildContext context) {
+    return _card(
+      padding: EdgeInsets.zero,
+      child: Column(
+        children: [
+          _menuTile(
+            icon: Icons.person_outline_rounded,
+            label: 'Informasi Akun',
+            onTap: _openEditProfile,
+          ),
+          _menuDivider(),
+          _menuTile(
+            icon: Icons.help_outline_rounded,
+            label: 'Pusat Bantuan',
+            onTap: () => Navigator.pushNamed(context, '/pusat-bantuan'),
+          ),
+        ],
+      ),
+    );
+  }
 
-  static Widget _menuTile(
-    BuildContext context, {
-    required String icon,
+  Widget _menuTile({
+    required IconData icon,
     required String label,
     required VoidCallback onTap,
-    bool isFirst = false,
-    bool isLast = false,
   }) {
     return InkWell(
-      borderRadius: BorderRadius.vertical(
-        top: isFirst ? const Radius.circular(16) : Radius.zero,
-        bottom: isLast ? const Radius.circular(16) : Radius.zero,
-      ),
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: Row(
           children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: kPrimaryGreen.withValues(alpha: 0.08),
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Iconify(icon, color: kPrimaryGreen, size: 18),
-              ),
-            ),
+            Icon(icon, size: 21, color: kPrimaryGreen),
             const SizedBox(width: 14),
             Expanded(
               child: Text(
@@ -379,14 +225,14 @@ class _ProfilePageState extends State<ProfilePage> {
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: Colors.black87,
+                  color: kTextPrimary,
                 ),
               ),
             ),
-            Icon(
+            const Icon(
               Icons.chevron_right_rounded,
-              color: Colors.grey.shade400,
               size: 22,
+              color: kTextMuted,
             ),
           ],
         ),
@@ -394,16 +240,70 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  static void _comingSoon(BuildContext context, String fitur) {
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$fitur segera hadir'),
-        behavior: SnackBarBehavior.floating,
+  Widget _menuDivider() => const Divider(
+        height: 1,
+        indent: 51,
+        endIndent: 16,
+        color: kBorderColor,
+      );
+
+  // ── Tombol keluar ────────────────────────────────────────────────────────
+
+  Widget _buildSignOutButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: _viewModel.isSigningOut ? null : _signOut,
+        icon: _viewModel.isSigningOut
+            ? const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: kPrimaryOrange,
+                ),
+              )
+            : const Icon(
+                Icons.logout_rounded,
+                color: kPrimaryOrange,
+                size: 17,
+              ),
+        label: Text(
+          'Keluar Akun',
+          style: GoogleFonts.inter(
+            fontSize: 13.5,
+            fontWeight: FontWeight.w600,
+            color: kPrimaryOrange,
+          ),
+        ),
+        style: OutlinedButton.styleFrom(
+          backgroundColor: kSurfaceColor,
+          foregroundColor: kPrimaryOrange,
+          minimumSize: const Size.fromHeight(44),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          side: const BorderSide(color: kPrimaryOrange),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
       ),
     );
   }
+
+  // ── Helper ───────────────────────────────────────────────────────────────
+
+  Widget _card({required Widget child, EdgeInsetsGeometry? padding}) {
+    return Container(
+      width: double.infinity,
+      padding: padding ??
+          const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+      decoration: BoxDecoration(
+        color: kSurfaceColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: AppShadows.soft,
+      ),
+      child: child,
+    );
+  }
 }
-
-
-

@@ -1,9 +1,9 @@
-﻿import 'package:flutter/material.dart';
+﻿
+import 'package:flutter/material.dart';
 import 'package:flutter_agrowisatajeruk/core/theme/app_colors.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/mdi.dart';
-
 
 /// Warna kategori biru untuk badge "Workshop".
 const Color _kBlue = Color(0xFF2563EB);
@@ -16,8 +16,6 @@ class _AktivitasItem {
     required this.badgeHijau,
     required this.chip,
     required this.chipHijau,
-    required this.chipBintang,
-    required this.rating,
     required this.harga,
     required this.ruteDetail,
   });
@@ -27,8 +25,6 @@ class _AktivitasItem {
   final bool badgeHijau;
   final String chip;
   final bool chipHijau;
-  final bool chipBintang;
-  final String rating;
   final int harga;
   final String ruteDetail;
 }
@@ -41,9 +37,7 @@ const List<_AktivitasItem> _daftarAktivitas = [
     badgeHijau: true,
     chip: 'Makan Sepuasnya',
     chipHijau: true,
-    chipBintang: true,
-    rating: '4.7',
-    harga: 25000,
+    harga: 20000,
     ruteDetail: '/petik-jeruk',
   ),
   _AktivitasItem(
@@ -52,8 +46,6 @@ const List<_AktivitasItem> _daftarAktivitas = [
     badgeHijau: false,
     chip: 'Kelarga & Pelajar',
     chipHijau: false,
-    chipBintang: false,
-    rating: '4.9',
     harga: 35000,
     ruteDetail: '/edukasi',
   ),
@@ -63,8 +55,6 @@ const List<_AktivitasItem> _daftarAktivitas = [
     badgeHijau: false,
     chip: 'Kelarga & Pelajar',
     chipHijau: false,
-    chipBintang: false,
-    rating: '4.9',
     harga: 50000,
     ruteDetail: '/wawancara',
   ),
@@ -74,14 +64,12 @@ const List<_AktivitasItem> _daftarAktivitas = [
     badgeHijau: true,
     chip: 'Makan Sepuasnya',
     chipHijau: true,
-    chipBintang: true,
-    rating: '4.9',
     harga: 25000,
     ruteDetail: '/penelitian',
   ),
 ];
 
-/// Halaman Aktivitas â€” daftar semua aktivitas kebun jeruk Solorejo.
+/// Halaman Aktivitas — daftar semua aktivitas kebun jeruk Solorejo.
 class AktivitasPage extends StatelessWidget {
   const AktivitasPage({super.key});
 
@@ -102,7 +90,8 @@ class AktivitasPage extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
                 itemCount: _daftarAktivitas.length,
                 separatorBuilder: (_, _) => const SizedBox(height: 12),
-                itemBuilder: (context, i) => _kartu(context, _daftarAktivitas[i]),
+                itemBuilder: (context, i) =>
+                    _kartu(context, _daftarAktivitas[i]),
               ),
             ),
           ],
@@ -111,7 +100,7 @@ class AktivitasPage extends StatelessWidget {
     );
   }
 
-  // --- HEADER (kembali, judul, ikon akun) ---
+  // --- HEADER ---
   Widget _buildHeader(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 4, 20, 4),
@@ -123,7 +112,14 @@ class AktivitasPage extends StatelessWidget {
               size: 20,
               color: Colors.black87,
             ),
-            onPressed: () => Navigator.pop(context),
+            // Kembali langsung ke halaman Beranda.
+            onPressed: () {
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/beranda',
+                (route) => false,
+              );
+            },
           ),
           Text(
             'Aktivitas',
@@ -162,7 +158,6 @@ class AktivitasPage extends StatelessWidget {
 
     return InkWell(
       borderRadius: BorderRadius.circular(14),
-      // Detail -> halaman detail sesuai aktivitas.
       onTap: () => Navigator.pushNamed(context, item.ruteDetail),
       child: Container(
         padding: const EdgeInsets.all(14),
@@ -174,24 +169,16 @@ class AktivitasPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Baris 1: badge kategori + chip khalayak + rating.
+            // Baris 1: badge kategori + chip khalayak.
             Row(
               children: [
                 _chip(item.badge, warnaBadge),
                 const SizedBox(width: 6),
-                _chip(item.chip, warnaChip, bintang: item.chipBintang),
-                const Spacer(),
-                Text(
-                  item.rating,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    color: kPrimaryGreen,
-                  ),
-                ),
+                _chip(item.chip, warnaChip),
               ],
             ),
             const SizedBox(height: 10),
+
             // Baris 2: nama, harga, dan tautan Detail.
             Row(
               children: [
@@ -231,7 +218,6 @@ class AktivitasPage extends StatelessWidget {
                     ],
                   ),
                 ),
-                // Tautan Detail >.
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -259,34 +245,25 @@ class AktivitasPage extends StatelessWidget {
   }
 
   /// Chip kategori berwarna tint.
-  Widget _chip(String label, Color warna, {bool bintang = false}) {
+  Widget _chip(String label, Color warna) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: warna.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (bintang) ...[
-            Icon(Icons.star, size: 10, color: warna),
-            const SizedBox(width: 4),
-          ],
-          Text(
-            label,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: warna,
-            ),
-          ),
-        ],
+      child: Text(
+        label,
+        style: GoogleFonts.inter(
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+          color: warna,
+        ),
       ),
     );
   }
 
-  // --- FOOTER HIJAU (info kebun + Info Tiket) ---
+  // --- FOOTER HIJAU ---
   Widget _buildFooter(BuildContext context) {
     return SafeArea(
       child: Container(
@@ -300,7 +277,7 @@ class AktivitasPage extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                'â€¢ Kebun Salak Hilir Inti â€¢ Casia Cemil di Dau',
+                '• Kebun Salak Hilir Inti • Casia Cemil di Dau',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.inter(
@@ -313,7 +290,6 @@ class AktivitasPage extends StatelessWidget {
             const SizedBox(width: 8),
             InkWell(
               borderRadius: BorderRadius.circular(12),
-              // Info Tiket -> alur pemesanan tiket.
               onTap: () => Navigator.pushNamed(context, '/pesan-tiket'),
               child: Container(
                 padding: const EdgeInsets.symmetric(
@@ -351,5 +327,3 @@ class AktivitasPage extends StatelessWidget {
     return 'Rp $buf';
   }
 }
-
-

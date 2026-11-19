@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'package:flutter_agrowisatajeruk/features/home/presentation/pages/aktivitas_page.dart';
 import 'package:flutter_agrowisatajeruk/features/activity/presentation/pages/petik_jeruk_page.dart';
-import 'package:flutter_agrowisatajeruk/features/profile/presentation/pages/profile_page.dart';
 
 import 'test_font_helpers.dart';
 
@@ -29,7 +28,6 @@ Future<void> _pumpPetik(WidgetTester tester) async {
       navigatorObservers: [_recorder],
       routes: {
         '/aktivitas': (_) => const AktivitasPage(),
-        '/profile': (_) => const ProfilePage(),
       },
     ),
   );
@@ -47,9 +45,8 @@ void main() {
     // Judul, alamat, statistik.
     expect(find.text('Petik Jeruk Langsung'), findsOneWidget);
     expect(find.textContaining('Jl. Watu Gede'), findsOneWidget);
-    expect(find.text('2 - 3 Jam'), findsOneWidget);
+    expect(find.text('2 – 3 Jam'), findsOneWidget);
     expect(find.text('Rp 20.000'), findsOneWidget);
-    expect(find.text('4.7 (1.2k)'), findsOneWidget);
 
     // Section utama.
     expect(find.text('Aktivitas'), findsOneWidget);
@@ -66,7 +63,7 @@ void main() {
         findsOneWidget);
     expect(find.text('Akses jelajah kebun lereng 850 mdpl'), findsOneWidget);
     expect(find.text('Didampingi pemandu petani lokal'), findsOneWidget);
-    for (final f in ['Parkir', 'Toilet', 'Glubuk', 'Toko']) {
+    for (final f in ['Parkir', 'Toilet', 'Gubuk', 'Toko']) {
       expect(find.text(f), findsOneWidget);
     }
     expect(find.text('Pintu Masuk Utama (Blok A)'), findsOneWidget);
@@ -85,7 +82,7 @@ void main() {
     expect(hero, isA<AssetImage>());
     expect(
       (hero as AssetImage).assetName,
-      'assets/images/Kebun Jeruk Solorejo.png',
+      'assets/images/kebun_jeruk_solorejo.png',
     );
   });
 
@@ -98,16 +95,5 @@ void main() {
 
     expect(_recorder.pushed, contains('/aktivitas'));
     expect(find.byType(AktivitasPage), findsOneWidget);
-  });
-
-  testWidgets('tombol profil navigasi ke halaman Profile', (tester) async {
-    await _pumpPetik(tester);
-
-    await tester.tap(find.byKey(const ValueKey('petik-profil')));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
-
-    expect(_recorder.pushed, contains('/profile'));
-    expect(find.byType(ProfilePage), findsOneWidget);
   });
 }
