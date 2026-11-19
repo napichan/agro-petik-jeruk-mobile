@@ -1,5 +1,8 @@
-﻿import 'package:flutter/material.dart';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_agrowisatajeruk/core/theme/app_colors.dart';
+import 'package:flutter_agrowisatajeruk/core/theme/app_sizes.dart';
+import 'package:flutter_agrowisatajeruk/shared/widgets/app_bottom_nav.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/mdi.dart';
@@ -9,10 +12,10 @@ import 'package:flutter_agrowisatajeruk/core/di/dependencies.dart';
 import '../../domain/entities/popular_activity.dart';
 import '../viewmodels/home_view_model.dart';
 
-/// Gambar lokal untuk banner & kartu aktivitas (kebun jeruk).
-const String _kKebunAsset = 'assets/images/Kebun Jeruk Solorejo.png';
+/// Gambar hero section Beranda.
+const String _kHeroAsset = 'assets/images/hero.png';
 
-/// Halaman beranda â€” sesuai desain UI "Beranda".
+/// Halaman beranda — sesuai desain UI "Beranda".
 class BerandaPage extends StatefulWidget {
   const BerandaPage({super.key});
 
@@ -47,10 +50,15 @@ class _BerandaPageState extends State<BerandaPage> {
     return Scaffold(
       backgroundColor: kBgColor,
       // Custom Bottom Navigation Bar dengan tombol Citrus Scan di tengah.
-      bottomNavigationBar: _buildBottomNav(),
+      bottomNavigationBar: const AppBottomNav(activeIndex: 0),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+          padding: const EdgeInsets.fromLTRB(
+            AppSizes.screenHorizontal,
+            AppSizes.screenTop,
+            AppSizes.screenHorizontal,
+            AppSizes.scrollBottomPadding,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -61,7 +69,8 @@ class _BerandaPageState extends State<BerandaPage> {
               _buildJelajahiMenu(),
               const SizedBox(height: 24),
               _buildAktivitasPopuler(),
-              const SizedBox(height: 30),
+              const SizedBox(height: AppSizes.sectionGap),
+              _buildInformasiPenting(),
             ],
           ),
         ),
@@ -75,132 +84,210 @@ class _BerandaPageState extends State<BerandaPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: kPrimaryGreen,
-                    shape: BoxShape.circle,
+            // Chip lokasi hijau muda.
+            Expanded(
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 7,
+                  ),
+                  decoration: BoxDecoration(
+                    color: kLightGreen,
+                    borderRadius: BorderRadius.circular(AppSizes.radiusChip),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: AppSizes.locationDot,
+                        height: AppSizes.locationDot,
+                        decoration: const BoxDecoration(
+                          color: kPrimaryGreen,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Flexible(
+                        child: Text(
+                          'WISATA ALAM SOLOREJO, MALANG',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.locationChip,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  'WISATA ALAM SOLOREJO, MALANG',
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: kPrimaryGreen,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ],
+              ),
             ),
+            const SizedBox(width: 8),
             // Tombol Notifikasi -> halaman Notifikasi.
             InkWell(
-              borderRadius: BorderRadius.circular(20),
+              customBorder: const CircleBorder(),
               onTap: () => Navigator.pushNamed(context, '/notifikasi'),
               child: Container(
-                padding: const EdgeInsets.all(8),
+                width: AppSizes.headerButton,
+                height: AppSizes.headerButton,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: kSurfaceColor,
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.grey.shade200),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.06),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
                 ),
-                child: const Iconify(
-                  Mdi.bell_outline,
-                  color: kPrimaryOrange,
-                  size: 20,
+                child: const Center(
+                  child: Iconify(
+                    Mdi.bell_outline,
+                    color: kPrimaryOrange,
+                    size: AppSizes.headerIcon,
+                  ),
                 ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         Text(
           'Halo ${_viewModel.content?.userFirstName ?? 'Budi'}',
-          style: GoogleFonts.inter(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
+          style: AppTextStyles.greeting,
         ),
-        Text(
-          'Ayo! Jelajahi aktivitas',
-          style: GoogleFonts.inter(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Colors.black87,
-          ),
-        ),
+        const SizedBox(height: 2),
+        Text('Ayo! Jelajahi aktivitas', style: AppTextStyles.subGreeting),
       ],
     );
   }
 
-  // --- WIDGET HERO BANNER (gambar asset + gradasi + label) ---
+  // --- WIDGET HERO BANNER (foto hero + gradasi terang + tombol Pesan Tiket) ---
   Widget _buildHeroBanner() {
-    return Container(
-      height: 180,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        image: const DecorationImage(
-          image: AssetImage(_kKebunAsset),
-          fit: BoxFit.cover,
-        ),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          gradient: LinearGradient(
-            begin: Alignment.bottomCenter,
-            end: Alignment.topCenter,
-            colors: [
-              Colors.black.withValues(alpha: 0.75),
-              Colors.transparent,
-            ],
-          ),
-        ),
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+      child: SizedBox(
+        height: 196,
+        width: double.infinity,
+        child: Stack(
+          fit: StackFit.expand,
           children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: kPrimaryOrange.withValues(alpha: 0.9),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                'MUSIM PANEN RAYA',
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+            Image.asset(
+              _kHeroAsset,
+              fit: BoxFit.cover,
+              alignment: Alignment.centerRight,
             ),
-            const SizedBox(height: 8),
-            Text(
-              'Waktu terbaik untuk petik jeruk',
-              style: GoogleFonts.inter(
-                fontSize: 16,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
+            Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _heroBadge(),
+                  const Spacer(),
+                  SizedBox(
+                    width: 218,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Petik Jeruk, Ciptakan\nMomen Seru!',
+                          style: GoogleFonts.inter(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w800,
+                            height: 1.18,
+                            color: kTextPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          'Rasakan pengalaman memetik jeruk langsung '
+                          'dari pohonnya bersama keluarga.',
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.inter(
+                            fontSize: 10,
+                            height: 1.45,
+                            color: kTextSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        _heroPesanTiketButton(),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Cari tahu saat jeruk manis siap dipetik langsung dari...',
-              style: GoogleFonts.inter(fontSize: 12, color: Colors.white70),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _heroBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.85),
+        borderRadius: BorderRadius.circular(AppSizes.radiusChip),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 5,
+            height: 5,
+            decoration: const BoxDecoration(
+              color: kPrimaryGreen,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 5),
+          Text(
+            'AGRO WISATA PETIK JERUK, SOLOREJO',
+            style: GoogleFonts.inter(
+              fontSize: 7.5,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.3,
+              color: kPrimaryGreen,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _heroPesanTiketButton() {
+    return Material(
+      color: kPrimaryOrange,
+      borderRadius: BorderRadius.circular(AppSizes.radiusChip),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(AppSizes.radiusChip),
+        onTap: () => Navigator.pushNamed(context, '/pesan-tiket'),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Pesan Tiket',
+                style: GoogleFonts.inter(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(width: 6),
+              const Icon(
+                Icons.arrow_forward_rounded,
+                size: 13,
+                color: Colors.white,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -212,30 +299,20 @@ class _BerandaPageState extends State<BerandaPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Jelajahi Sekarang',
-              style: GoogleFonts.inter(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
+            Expanded(
+              child: Text(
+                'Jelajahi Sekarang',
+                style: AppTextStyles.sectionTitle,
               ),
             ),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: kPrimaryOrange.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
+                color: kLightOrange,
+                borderRadius: BorderRadius.circular(AppSizes.radiusChip),
               ),
-              child: Text(
-                'Fitur Utama',
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  color: kPrimaryOrange,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+              child: Text('Fitur Utama', style: AppTextStyles.featureChip),
             ),
           ],
         ),
@@ -245,30 +322,32 @@ class _BerandaPageState extends State<BerandaPage> {
             Expanded(
               child: _menuItem(
                 iconData: Mdi.ticket_confirmation_outline,
-                title: 'Pesan\nTiket',
+                title: 'Pesan Tiket',
                 iconColor: kPrimaryOrange,
+                iconBackground: kLightOrange,
                 // Pesan Tiket -> alur pemesanan tiket.
                 onTap: () => Navigator.pushNamed(context, '/pesan-tiket'),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppSizes.menuCardGap),
             Expanded(
               child: _menuItem(
                 iconData: Mdi.map_search_outline,
-                title: 'Jelajahi\nAktivitas',
+                title: 'Jelajahi Aktivitas',
                 iconColor: kPrimaryGreen,
+                iconBackground: kLightGreen,
                 // Jelajahi Aktivitas -> halaman daftar aktivitas.
                 onTap: () => Navigator.pushNamed(context, '/aktivitas'),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppSizes.menuCardGap),
             Expanded(
               child: _menuItem(
                 iconData: Mdi.message_processing_outline,
                 title: 'ChatBot AI',
                 iconColor: kPrimaryOrange,
-                // Halaman chatbot belum tersedia.
-                onTap: () => _showComingSoon('ChatBot AI'),
+                iconBackground: kLightOrange,
+                onTap: () => Navigator.pushNamed(context, '/chatbot'),
               ),
             ),
           ],
@@ -282,40 +361,49 @@ class _BerandaPageState extends State<BerandaPage> {
     required String iconData,
     required String title,
     required Color iconColor,
+    required Color iconBackground,
     required VoidCallback onTap,
   }) {
     return InkWell(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(AppSizes.radiusLg),
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        height: AppSizes.menuCardHeight,
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.shade200),
+          color: kSurfaceColor,
+          borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+          border: Border.all(color: kBorderColor),
         ),
         child: Column(
           children: [
             Container(
-              width: 52,
-              height: 52,
+              width: AppSizes.menuIconBox,
+              height: AppSizes.menuIconBox,
               decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(16),
+                color: iconBackground,
+                borderRadius: BorderRadius.circular(AppSizes.radiusLg),
               ),
               child: Center(
-                child: Iconify(iconData, color: iconColor, size: 28),
+                child: Iconify(
+                  iconData,
+                  color: iconColor,
+                  size: AppSizes.menuIcon,
+                ),
               ),
             ),
-            const SizedBox(height: 10),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
-                height: 1.3,
+            const SizedBox(height: 8),
+            // Tinggi label tetap agar semua label sejajar walau 1-2 baris.
+            SizedBox(
+              height: AppSizes.menuLabelHeight,
+              child: Center(
+                child: Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.menuLabel,
+                ),
               ),
             ),
           ],
@@ -324,7 +412,7 @@ class _BerandaPageState extends State<BerandaPage> {
     );
   }
 
-  // --- WIDGET AKTIVITAS POPULER (kartu gambar + rating + harga + Pesan) ---
+  // --- WIDGET AKTIVITAS POPULER (kartu gambar + harga + Pesan) ---
   List<PopularActivity> get activities =>
       _viewModel.content?.activities ?? const [];
 
@@ -332,17 +420,11 @@ class _BerandaPageState extends State<BerandaPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Aktivitas Populer',
-          style: GoogleFonts.inter(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
-        ),
+        Text('Aktivitas Populer', style: AppTextStyles.sectionTitleGreen),
+        const SizedBox(height: 2),
         Text(
           'Pilihan favorit pengunjung minggu ini',
-          style: GoogleFonts.inter(fontSize: 12, color: Colors.grey),
+          style: AppTextStyles.sectionSubtitle,
         ),
         const SizedBox(height: 16),
         SizedBox(
@@ -358,9 +440,23 @@ class _BerandaPageState extends State<BerandaPage> {
     );
   }
 
-  /// Kartu aktivitas: gambar kebun dengan chip Populer + rating,
+  /// Kartu aktivitas: gambar kebun dengan chip Populer + label,
   /// lalu judul, deskripsi, dan baris harga + tombol Pesan.
   Widget _aktivitasCard(PopularActivity item) {
+    // Petik Jeruk Langsung → halaman Petik Jeruk,
+    // Edukasi Wisata → halaman daftar edukasi.
+    final route = switch (item.nama) {
+      'Petik Jeruk Langsung' => '/petik-jeruk',
+      'Edukasi Wisata' => '/edukasi',
+      _ => null,
+    };
+    return GestureDetector(
+      onTap: route == null ? null : () => Navigator.pushNamed(context, route),
+      child: _aktivitasCardBody(item),
+    );
+  }
+
+  Widget _aktivitasCardBody(PopularActivity item) {
     return Container(
       width: 250,
       clipBehavior: Clip.antiAlias,
@@ -372,15 +468,12 @@ class _BerandaPageState extends State<BerandaPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Gambar dengan chip Populer & rating di atasnya.
+          // Gambar dengan chip Populer di atasnya.
           Expanded(
             child: Stack(
               fit: StackFit.expand,
               children: [
-                Image(
-                  image: AssetImage(item.image),
-                  fit: BoxFit.cover,
-                ),
+                Image(image: AssetImage(item.image), fit: BoxFit.cover),
                 // Chip Populer (oranye) + chip label hijau (Makan Sepuasnya, dll).
                 Positioned(
                   top: 10,
@@ -394,12 +487,6 @@ class _BerandaPageState extends State<BerandaPage> {
                         Flexible(child: _chipLabel(item.chipLabel)),
                     ],
                   ),
-                ),
-                // Rating chip di pojok kiri bawah gambar.
-                Positioned(
-                  bottom: 10,
-                  left: 10,
-                  child: _chipRating(item),
                 ),
               ],
             ),
@@ -533,28 +620,71 @@ class _BerandaPageState extends State<BerandaPage> {
     );
   }
 
-  /// Chip rating hijau muda, mis. "4.7".
-  Widget _chipRating(PopularActivity item) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.45),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.star, color: Colors.amber, size: 10),
-          const SizedBox(width: 4),
-          Text(
-            item.rating,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
+  // --- INFORMASI PENTING ---
+  Widget _buildInformasiPenting() {
+    return InkWell(
+      borderRadius: BorderRadius.circular(AppSizes.infoCardRadius),
+      onTap: () => Navigator.pushNamed(context, '/informasi'),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: kSurfaceColor,
+          borderRadius: BorderRadius.circular(AppSizes.infoCardRadius),
+          border: Border.all(color: kBorderColor),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Informasi Penting', style: AppTextStyles.cardTitle),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      // Chip jam operasional.
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: kLightOrange,
+                          borderRadius: BorderRadius.circular(
+                            AppSizes.radiusChip,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.schedule,
+                              size: 10,
+                              color: kPrimaryOrange,
+                            ),
+                            const SizedBox(width: 4),
+                            Text('08.00-16.00', style: AppTextStyles.clockChip),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Cek tata tertib & syarat kunjungan sebelum datang',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.caption,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+            const SizedBox(width: 8),
+            const Icon(Icons.chevron_right, size: 18, color: kTextMuted),
+          ],
+        ),
       ),
     );
   }
@@ -570,156 +700,4 @@ class _BerandaPageState extends State<BerandaPage> {
     }
     return 'Rp $buf';
   }
-
-  // --- CUSTOM BOTTOM NAVIGATION BAR ---
-  Widget _buildBottomNav() {
-    return Container(
-      height: 80,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.12),
-            spreadRadius: 1,
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          // Beranda (aktif) â€” ikon di dalam kotak oranye.
-          _navItemActive(Mdi.home, 'Beranda'),
-          _navItem(
-            Mdi.ticket_confirmation_outline,
-            'Tiket',
-            // Tiket -> halaman Tiket Saya.
-            onTap: () => Navigator.pushNamed(context, '/tiket'),
-          ),
-          // Tombol Citrus Scan di tengah.
-          _scanButton(),
-          _navItem(
-            Mdi.clipboard_text_outline,
-            'Riwayat',
-            // Riwayat -> halaman Riwayat Kunjungan.
-            onTap: () => Navigator.pushNamed(context, '/riwayat'),
-          ),
-          _navItem(
-            Mdi.account_outline,
-            'Profile',
-            // Profile -> halaman Profile.
-            onTap: () => Navigator.pushNamed(context, '/profile'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Item navigasi aktif: ikon putih di kotak oranye + label oranye.
-  Widget _navItemActive(String iconData, String label) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: () {},
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: kPrimaryOrange,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: kPrimaryOrange.withValues(alpha: 0.35),
-                  blurRadius: 8,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Center(
-              child: Iconify(iconData, color: Colors.white, size: 22),
-            ),
-          ),
-          const SizedBox(height: 5),
-          Text(
-            label,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: kPrimaryOrange,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Item navigasi nonaktif: ikon + label abu-abu.
-  Widget _navItem(String iconData, String label, {VoidCallback? onTap}) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: onTap,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SizedBox(
-            height: 40,
-            child: Center(
-              child: Iconify(iconData, color: Colors.grey.shade400, size: 26),
-            ),
-          ),
-          const SizedBox(height: 5),
-          Text(
-            label,
-            style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade400),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Tombol Citrus Scan hijau di tengah bottom nav.
-  Widget _scanButton() {
-    return InkWell(
-      borderRadius: BorderRadius.circular(16),
-      onTap: () => Navigator.pushNamed(context, '/citrus-scan'),
-      child: Container(
-        width: 55,
-        height: 55,
-        decoration: BoxDecoration(
-          color: kPrimaryGreen,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: kPrimaryGreen.withValues(alpha: 0.4),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: const Center(
-          child: Iconify(Mdi.line_scan, color: Colors.white, size: 28),
-        ),
-      ),
-    );
-  }
-
-  /// Snackbar sederhana untuk fitur yang belum tersedia.
-  void _showComingSoon(String fitur) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text('$fitur segera hadir'),
-          behavior: SnackBarBehavior.floating,
-          duration: const Duration(seconds: 2),
-        ),
-      );
-  }
 }
-
-
-
-

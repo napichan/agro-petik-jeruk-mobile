@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 
 import '../../domain/entities/education_activity.dart';
 import '../../domain/usecases/get_education_activity.dart';
@@ -16,6 +17,17 @@ class EducationActivityViewModel extends ChangeNotifier {
   EducationActivity? get activity => _activity;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+
+  /// Harga tiket masuk terformat, mis. "Rp 20.000".
+  String get hargaFormatted {
+    final activity = _activity;
+    if (activity == null) return '';
+    return NumberFormat.currency(
+      locale: 'id',
+      symbol: 'Rp ',
+      decimalDigits: 0,
+    ).format(activity.price);
+  }
 
   Future<void> load() async {
     _isLoading = true;

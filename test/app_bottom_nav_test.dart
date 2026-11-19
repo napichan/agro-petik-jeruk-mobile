@@ -3,8 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:flutter_agrowisatajeruk/features/home/presentation/pages/beranda_page.dart';
-import 'package:flutter_agrowisatajeruk/features/scan/presentation/pages/citrus_scan_page.dart';
-import 'package:flutter_agrowisatajeruk/features/booking/presentation/pages/pesan_tiket_page.dart';
 import 'package:flutter_agrowisatajeruk/features/profile/presentation/pages/profile_page.dart';
 import 'package:flutter_agrowisatajeruk/features/tickets/presentation/pages/riwayat_page.dart';
 import 'package:flutter_agrowisatajeruk/features/tickets/presentation/pages/tiket_saya_page.dart';
@@ -30,10 +28,9 @@ Widget _app(Widget home, _PushRecorder recorder) {
     navigatorObservers: [recorder],
     routes: {
       '/beranda': (_) => const BerandaPage(),
-      '/pesan-tiket': (_) => const PesanTiketPage(),
+      '/tiket': (_) => const TiketPage(),
       '/riwayat': (_) => const RiwayatPage(),
       '/profile': (_) => const ProfilePage(),
-      '/citrus-scan': (_) => const CitrusScanPage(),
     },
   );
 }
@@ -75,7 +72,6 @@ void main() {
 
     // Hindari percobaan unduh font Google secara runtime di dalam test.
     GoogleFonts.config.allowRuntimeFetching = false;
-
   });
 
   final hosts = <String, Widget Function()>{
@@ -86,8 +82,7 @@ void main() {
 
   final targets = <(String, String, Type)>[
     ('nav/beranda', '/beranda', BerandaPage),
-    ('nav/pesan-tiket', '/pesan-tiket', PesanTiketPage),
-    ('nav/citrus-scan', '/citrus-scan', CitrusScanPage),
+    ('nav/pesan-tiket', '/tiket', TiketPage),
     ('nav/riwayat', '/riwayat', RiwayatPage),
     ('nav/profile', '/profile', ProfilePage),
   ];

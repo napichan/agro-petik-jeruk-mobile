@@ -35,10 +35,26 @@ class _PesanTiketPageState extends State<PesanTiketPage> {
     'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
   ];
 
+  static const List<String> _hariPendek = [
+    'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min',
+  ];
+  static const List<String> _hariPanjang = [
+    'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu',
+  ];
+  static const List<String> _bulanPendek = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+    'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des',
+  ];
+
+  // Tahun yang bisa dipilih pada kalender.
+  static const List<int> _tahunList = [2026, 2027];
+
   // ---- State form ----
   int _jenisDipilih = 0;
   int _sesiDipilih = 0;
-  DateTime _tanggal = DateTime(2026, 9, 20);
+  DateTime? _tanggal;
+  DateTime _bulanTampil = DateTime(2026, 9);
+  bool _kalenderTerbuka = true;
   int _dewasa = 2;
   int _anak = 0;
   final TextEditingController _namaCtrl = TextEditingController();
@@ -92,8 +108,14 @@ class _PesanTiketPageState extends State<PesanTiketPage> {
     return 'Rp $buf';
   }
 
-  String _formatTanggal(DateTime d) =>
+  /// Format tanggal lengkap — mis. "20 September 2026".
+  String _formatTanggalLengkap(DateTime d) =>
       '${d.day} ${_bulan[d.month - 1]} ${d.year}';
+
+  /// Format ringkasan kedatangan — mis. "Minggu, 20 Sep 2026".
+  String _formatKedatangan(DateTime d) =>
+      '${_hariPanjang[d.weekday - 1]}, ${d.day} '
+      '${_bulanPendek[d.month - 1]} ${d.year}';
 
   @override
   Widget build(BuildContext context) {
@@ -323,55 +345,279 @@ class _PesanTiketPageState extends State<PesanTiketPage> {
     );
   }
 
-  // --- 2. TANGGAL KUNJUNGAN (date picker) ---
+  // --- 2. TANGGAL KUNJUNGAN (kalender bulanan) ---
   Widget _buildTanggal() {
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: _pilihTanggal,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.calendar_month, color: kPrimaryGreen, size: 20),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                _formatTanggal(_tanggal),
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                ),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () => setState(() => _kalenderTerbuka = !_kalenderTerbuka),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.calendar_month,
+                    color: kPrimaryGreen,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      _tanggal == null
+                          ? 'Pilih tanggal kunjungan'
+                          : _formatTanggalLengkap(_tanggal!),
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: _tanggal == null
+                            ? Colors.grey.shade500
+                            : Colors.black87,
+                      ),
+                    ),
+                  ),
+                  const Icon(
+                    Icons.edit_calendar,
+                    color: kPrimaryGreen,
+                    size: 20,
+                  ),
+                ],
               ),
             ),
-            const Icon(Icons.edit_calendar, color: kPrimaryGreen, size: 20),
-          ],
+          ),
+          if (_kalenderTerbuka) _buildKalender(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildKalender() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+      padding: const EdgeInsets.fromLTRB(6, 8, 6, 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF7F8F9),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        children: [
+          // Navigasi bulan.
+          Row(
+            children: [
+              _navBulan(Icons.keyboard_arrow_left_rounded, -1),
+              Expanded(
+                child: Center(
+                  // Pilihan tahun menyatu dengan judul bulan.
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<int>(
+                      value: _bulanTampil.year,
+                      isDense: true,
+                      borderRadius: BorderRadius.circular(10),
+                      icon: const Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        size: 16,
+                        color: Colors.black54,
+                      ),
+                      style: GoogleFonts.inter(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.black87,
+                      ),
+                      selectedItemBuilder: (context) => _tahunList
+                          .map(
+                            (tahun) => Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                '${_bulan[_bulanTampil.month - 1]} $tahun',
+                              ),
+                            ),
+                          )
+                          .toList(),
+                      items: _tahunList
+                          .map(
+                            (tahun) => DropdownMenuItem(
+                              value: tahun,
+                              child: Text('$tahun'),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (tahun) {
+                        if (tahun == null) return;
+                        setState(() {
+                          _bulanTampil = DateTime(tahun, _bulanTampil.month);
+                        });
+                      },
+                    ),
+                  ),
+                ),
+              ),
+              _navBulan(Icons.keyboard_arrow_right_rounded, 1),
+            ],
+          ),
+          const SizedBox(height: 8),
+          // Nama hari, Sabtu & Minggu berwarna oranye.
+          Row(
+            children: List.generate(7, (i) {
+              return Expanded(
+                child: Center(
+                  child: Text(
+                    _hariPendek[i],
+                    style: GoogleFonts.inter(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: i >= 5 ? kPrimaryOrange : Colors.grey.shade500,
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ),
+          const SizedBox(height: 2),
+          ..._barisTanggal(),
+          const SizedBox(height: 8),
+          Divider(height: 1, color: Colors.grey.shade200),
+          const SizedBox(height: 10),
+          // Ringkasan kedatangan & jam buka.
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(
+                Icons.event_available_outlined,
+                size: 16,
+                color: kPrimaryGreen,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  _tanggal == null
+                      ? 'Kedatangan: belum dipilih'
+                      : 'Kedatangan: ${_formatKedatangan(_tanggal!)}',
+                  style: GoogleFonts.inter(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w700,
+                    height: 1.4,
+                    color: _tanggal == null
+                        ? Colors.grey.shade500
+                        : kPrimaryGreen,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Buka 08:00 - 16:00',
+                textAlign: TextAlign.right,
+                style: GoogleFonts.inter(
+                  fontSize: 10,
+                  height: 1.4,
+                  color: Colors.grey.shade500,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _navBulan(IconData icon, int delta) {
+    final berikut = DateTime(_bulanTampil.year, _bulanTampil.month + delta);
+    final aktif = berikut.year >= _tahunList.first &&
+        berikut.year <= _tahunList.last;
+    return InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: aktif ? () => setState(() => _bulanTampil = berikut) : null,
+      child: Padding(
+        padding: const EdgeInsets.all(4),
+        child: Icon(
+          icon,
+          size: 18,
+          color: aktif ? Colors.black87 : Colors.grey.shade300,
         ),
       ),
     );
   }
 
-  Future<void> _pilihTanggal() async {
-    final dipilih = await showDatePicker(
-      context: context,
-      initialDate: _tanggal,
-      firstDate: DateTime(2026, 9, 20),
-      lastDate: DateTime(2027, 12, 31),
-    );
-    if (dipilih != null) {
-      setState(() => _tanggal = dipilih);
+  /// Baris-baris tanggal untuk bulan yang sedang ditampilkan.
+  List<Widget> _barisTanggal() {
+    final pertama = DateTime(_bulanTampil.year, _bulanTampil.month, 1);
+    final jumlahHari = DateTime(
+      _bulanTampil.year,
+      _bulanTampil.month + 1,
+      0,
+    ).day;
+    // Senin = kolom pertama.
+    final offset = pertama.weekday - 1;
+    final totalKolom = ((offset + jumlahHari) / 7).ceil() * 7;
+    final baris = <Widget>[];
+
+    for (int r = 0; r < totalKolom ~/ 7; r++) {
+      final children = <Widget>[];
+      for (int c = 0; c < 7; c++) {
+        final tanggal = r * 7 + c - offset + 1;
+        if (tanggal < 1 || tanggal > jumlahHari) {
+          children.add(
+            const Expanded(
+              child: SizedBox(height: 32),
+            ),
+          );
+          continue;
+        }
+
+        final date = DateTime(_bulanTampil.year, _bulanTampil.month, tanggal);
+        final terpilih = _tanggal != null &&
+            _tanggal!.year == date.year &&
+            _tanggal!.month == date.month &&
+            _tanggal!.day == date.day;
+
+        children.add(
+          Expanded(
+            child: Center(
+              child: GestureDetector(
+                onTap: () => setState(() {
+                  _tanggal = date;
+                  _bulanTampil = DateTime(date.year, date.month);
+                }),
+                child: Container(
+                  width: 32,
+                  height: 32,
+                  alignment: Alignment.center,
+                  decoration: terpilih
+                      ? const BoxDecoration(
+                          color: kPrimaryGreen,
+                          shape: BoxShape.circle,
+                        )
+                      : null,
+                  child: Text(
+                    '$tanggal',
+                    style: GoogleFonts.inter(
+                      fontSize: 11.5,
+                      fontWeight:
+                          terpilih ? FontWeight.w700 : FontWeight.w500,
+                      color: terpilih ? Colors.white : Colors.black87,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+      baris.add(Row(children: children));
     }
+    return baris;
   }
 
   // --- 3. SESI WAKTU (chip pilihan) ---
@@ -591,7 +837,7 @@ class _PesanTiketPageState extends State<PesanTiketPage> {
             autovalidateMode: AutovalidateMode.onUserInteraction,
             textInputAction: TextInputAction.next,
             style: GoogleFonts.inter(fontSize: 13),
-            decoration: _inputDecoration('Joe Malone', Icons.person_outline),
+            decoration: _inputDecoration('Tulis nama anda', Icons.person_outline),
           ),
           const SizedBox(height: 12),
           Text(
@@ -605,7 +851,7 @@ class _PesanTiketPageState extends State<PesanTiketPage> {
             autovalidateMode: AutovalidateMode.onUserInteraction,
             keyboardType: TextInputType.phone,
             style: GoogleFonts.inter(fontSize: 13),
-            decoration: _inputDecoration('0812-3456-7890', Icons.phone_outlined),
+            decoration: _inputDecoration('No.Hp', Icons.phone_outlined),
           ),
         ],
       ),

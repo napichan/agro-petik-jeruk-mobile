@@ -2,12 +2,19 @@ import 'package:flutter/material.dart';
 
 /// Satu baris daftar "Aktivitas" pada detail petik jeruk.
 class PetikJerukAktivitas {
-  const PetikJerukAktivitas(this.ikon, this.teks, this.latar, this.warnaIkon);
+  const PetikJerukAktivitas({
+    required this.ikon,
+    required this.teks,
+    required this.latar,
+  });
 
+  /// Path aset SVG ikon aktivitas (sudah memuat lingkaran latar sendiri).
   final String ikon;
+
   final String teks;
+
+  /// Warna lingkaran di belakang ikon.
   final Color latar;
-  final Color warnaIkon;
 }
 
 /// Data detail aktivitas "Petik Jeruk Langsung".
@@ -30,5 +37,7 @@ class PetikJerukDetail {
   final String rating;
   final String jumlahUlasan;
   final List<PetikJerukAktivitas> aktivitas;
+
+  /// Path aset SVG ikon fasilitas + labelnya.
   final List<({String ikon, String label})> fasilitas;
 }

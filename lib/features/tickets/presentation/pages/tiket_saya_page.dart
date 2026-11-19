@@ -141,7 +141,8 @@ class TiketPage extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         elevation: 0,
                       ),
-                      onPressed: () {},
+                      onPressed: () =>
+                          Navigator.pushNamed(context, '/detail-tiket'),
                       icon: const Iconify(Mdi.qrcode_scan, color: Colors.white, size: 16),
                       label: Text("Lihat E-Tiket", style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
                     )

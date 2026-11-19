@@ -86,6 +86,11 @@ class AuthService implements AuthDataSource {
     return RegisterSuccess(account);
   }
 
+  @override
+  void logout() {
+    currentUser = null;
+  }
+
   List<Account> get accounts => List.unmodifiable(_accounts);
 
   @visibleForTesting

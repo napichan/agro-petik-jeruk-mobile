@@ -10,4 +10,7 @@ abstract class AuthDataSource {
   });
 
   Account? get currentUser;
+
+  /// Mengakhiri sesi pengguna yang sedang aktif.
+  void logout();
 }

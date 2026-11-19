@@ -1,158 +1,136 @@
-﻿import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:iconify_flutter/iconify_flutter.dart';
-import 'package:iconify_flutter/icons/mdi.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:flutter_agrowisatajeruk/core/theme/app_colors.dart';
+import 'package:flutter_agrowisatajeruk/core/theme/app_icons.dart';
+import 'package:flutter_agrowisatajeruk/core/theme/app_sizes.dart';
 
 /// Bottom navigation bar custom yang dipakai bersama di seluruh halaman utama.
 ///
-/// Item navigasi:
-/// Beranda  -> '/beranda'      (beranda_page.dart)
-/// Tiket Saya -> '/pesan-tiket'(pesan_tiket_page.dart)
-/// Scan (tengah) -> '/citrus-scan' (citrus_scan_page.dart)
-/// Riwayat  -> '/riwayat'      (riwayat_page.dart)
-/// Profile  -> '/profile'      (profile_page.dart)
+/// Pill putih mengambang berisi 4 item (sesuai Figma):
+/// Beranda -> '/beranda' (beranda_page.dart)
+/// Tiket   -> '/tiket'   (tiket_saya_page.dart)
+/// Riwayat -> '/riwayat' (riwayat_page.dart)
+/// Profile -> '/profile' (profile_page.dart)
 class AppBottomNav extends StatelessWidget {
   const AppBottomNav({super.key, required this.activeIndex});
 
-  /// Index item yang sedang aktif (0 = Beranda, 1 = Tiket Saya,
-  /// 2 = Riwayat, 3 = Profile). Tombol scan di tengah tidak dihitung.
+  /// Index item yang sedang aktif (0 = Beranda, 1 = Tiket,
+  /// 2 = Riwayat, 3 = Profile).
   final int activeIndex;
+
+  static const List<_NavSpec> _items = [
+    _NavSpec(
+      index: 0,
+      icon: AppIcons.home,
+      label: 'Beranda',
+      route: '/beranda',
+    ),
+    _NavSpec(
+      index: 1,
+      navKey: 'nav/pesan-tiket',
+      icon: AppIcons.ticket,
+      label: 'Tiket',
+      route: '/tiket',
+    ),
+    _NavSpec(
+      index: 2,
+      icon: AppIcons.history,
+      label: 'Riwayat',
+      route: '/riwayat',
+    ),
+    _NavSpec(
+      index: 3,
+      icon: AppIcons.profile,
+      label: 'Profile',
+      route: '/profile',
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 80,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.12),
-            spreadRadius: 1,
-            blurRadius: 10,
-            offset: const Offset(0, -2),
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSizes.navMargin,
+          0,
+          AppSizes.navMargin,
+          AppSizes.navMargin,
+        ),
+        child: Container(
+          height: AppSizes.navHeight,
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSizes.navHorizontalPadding,
           ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _navItem(
-            context,
-            index: 0,
-            iconData: Mdi.home,
-            label: 'Beranda',
-            route: '/beranda',
+          decoration: BoxDecoration(
+            color: kSurfaceColor,
+            borderRadius: BorderRadius.circular(AppSizes.navRadius),
+            boxShadow: AppShadows.navPill,
           ),
-          _navItem(
-            context,
-            index: 1,
-            iconData: Mdi.ticket_confirmation_outline,
-            label: 'Tiket Saya',
-            route: '/pesan-tiket',
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [for (final item in _items) _navItem(context, item)],
           ),
-          // Tombol Citrus Scan di tengah.
-          _scanButton(context),
-          _navItem(
-            context,
-            index: 2,
-            iconData: Mdi.clipboard_text_outline,
-            label: 'Riwayat',
-            route: '/riwayat',
-          ),
-          _navItem(
-            context,
-            index: 3,
-            iconData: Mdi.account_outline,
-            label: 'Profile',
-            route: '/profile',
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  /// Item navigasi. Saat aktif: ikon putih di kotak oranye + label oranye.
-  /// Saat tidak aktif: ikon + label abu-abu.
-  Widget _navItem(
-    BuildContext context, {
-    required int index,
-    required String iconData,
-    required String label,
-    required String route,
-  }) {
-    final aktif = index == activeIndex;
+  /// Item navigasi. Kotak ikon selalu 37x37 agar posisi label tetap sama
+  /// saat item aktif maupun tidak aktif.
+  /// Aktif: ikon putih 19 di kotak oranye 37 + glow.
+  /// Tidak aktif: ikon SVG oranye 24.
+  Widget _navItem(BuildContext context, _NavSpec spec) {
+    final aktif = spec.index == activeIndex;
 
     return InkWell(
-      key: ValueKey('nav$route'),
-      borderRadius: BorderRadius.circular(12),
-      onTap: () => _goTo(context, route),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (aktif)
+      key: ValueKey(spec.navKey),
+      borderRadius: BorderRadius.circular(AppSizes.navItemRadius),
+      onTap: () => _goTo(context, spec.route),
+      child: SizedBox(
+        width: AppSizes.navItemWidth,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
             Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: kPrimaryOrange,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: kPrimaryOrange.withValues(alpha: 0.35),
-                    blurRadius: 8,
-                    offset: const Offset(0, 3),
+              width: AppSizes.navActiveBox,
+              height: AppSizes.navActiveBox,
+              decoration: aktif
+                  ? BoxDecoration(
+                      color: kPrimaryOrange,
+                      borderRadius: BorderRadius.circular(
+                        AppSizes.navItemRadius,
+                      ),
+                      boxShadow: AppShadows.orangeGlow,
+                    )
+                  : null,
+              child: Center(
+                child: SvgPicture.asset(
+                  spec.icon,
+                  width: aktif ? AppSizes.navActiveIcon : AppSizes.navIcon,
+                  height: aktif ? AppSizes.navActiveIcon : AppSizes.navIcon,
+                  fit: BoxFit.contain,
+                  colorFilter: ColorFilter.mode(
+                    aktif ? kSurfaceColor : kPrimaryOrange,
+                    BlendMode.srcIn,
                   ),
-                ],
-              ),
-              child: Center(
-                child: Iconify(iconData, color: Colors.white, size: 22),
-              ),
-            )
-          else
-            SizedBox(
-              height: 40,
-              child: Center(
-                child: Iconify(iconData, color: Colors.grey.shade400, size: 26),
+                ),
               ),
             ),
-          const SizedBox(height: 5),
-          Text(
-            label,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: aktif ? kPrimaryOrange : Colors.grey.shade400,
-              fontWeight: aktif ? FontWeight.w600 : FontWeight.normal,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Tombol Citrus Scan hijau di tengah bottom nav.
-  Widget _scanButton(BuildContext context) {
-    return InkWell(
-      key: const ValueKey('nav/citrus-scan'),
-      borderRadius: BorderRadius.circular(16),
-      onTap: () => _goTo(context, '/citrus-scan'),
-      child: Container(
-        width: 55,
-        height: 55,
-        decoration: BoxDecoration(
-          color: kPrimaryGreen,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: kPrimaryGreen.withValues(alpha: 0.4),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
+            const SizedBox(height: AppSizes.navIconLabelGap),
+            Text(
+              spec.label,
+              maxLines: 1,
+              softWrap: false,
+              textAlign: TextAlign.center,
+              style: aktif
+                  ? AppTextStyles.navLabelActive
+                  : AppTextStyles.navLabel,
             ),
           ],
-        ),
-        child: const Center(
-          child: Iconify(Mdi.line_scan, color: Colors.white, size: 28),
         ),
       ),
     );
@@ -166,3 +144,18 @@ class AppBottomNav extends StatelessWidget {
   }
 }
 
+class _NavSpec {
+  const _NavSpec({
+    required this.index,
+    required this.icon,
+    required this.label,
+    required this.route,
+    String? navKey,
+  }) : navKey = navKey ?? 'nav$route';
+
+  final int index;
+  final String navKey;
+  final String icon;
+  final String label;
+  final String route;
+}

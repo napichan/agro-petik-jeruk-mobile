@@ -1,7 +1,10 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/mdi.dart';
+import 'package:image_picker/image_picker.dart';
 
 class PembayaranPage extends StatefulWidget {
   const PembayaranPage({super.key});
@@ -16,6 +19,11 @@ class _PembayaranPageState extends State<PembayaranPage> {
   final Color borderColor = Colors.grey.shade200;
 
   int _selectedPayment = 0; // 0: BRI, 1: QRIS, 2: Tunai
+
+  // Bukti transfer yang dipilih dari galeri.
+  Uint8List? _buktiTransfer;
+  String? _buktiNama;
+  bool _memilihBukti = false;
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +77,10 @@ class _PembayaranPageState extends State<PembayaranPage> {
             _buildPaymentOption(1, "QRIS"),
             const SizedBox(height: 12),
             _buildPaymentOption(2, "Bayar Tunai di Loket"),
+            if (_selectedPayment == 0) ...[
+              const SizedBox(height: 24),
+              _buildBuktiTransfer(),
+            ],
             const SizedBox(height: 40),
           ],
         ),
@@ -259,6 +271,137 @@ class _PembayaranPageState extends State<PembayaranPage> {
     );
   }
 
+  // --- Bukti transfer (unggah gambar) ---
+  Widget _buildBuktiTransfer() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text("Bukti Transfer", style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.bold, color: const Color(0xFF1A202C))),
+            Text("JPG / PNG", style: GoogleFonts.inter(fontSize: 11, color: Colors.grey.shade500)),
+          ],
+        ),
+        const SizedBox(height: 10),
+        if (_buktiTransfer == null) _buildDropZone() else _buildBuktiPreview(),
+      ],
+    );
+  }
+
+  Widget _buildDropZone() {
+    return GestureDetector(
+      onTap: _memilihBukti ? null : _pilihBuktiTransfer,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          width: double.infinity,
+          color: const Color(0xFFF7F9FC),
+          child: CustomPaint(
+            painter: _DashedBorderPainter(color: const Color(0xFFCBD5E1)),
+            child: SizedBox(
+              height: 56,
+              child: Center(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _memilihBukti
+                        ? SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: primaryGreen),
+                          )
+                        : Icon(Icons.description_outlined, size: 18, color: primaryGreen),
+                    const SizedBox(width: 8),
+                    Text(
+                      _memilihBukti ? "Membuka galeri..." : "Ketuk untuk unggah bukti transfer",
+                      style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: primaryGreen),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBuktiPreview() {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: primaryGreen.withValues(alpha: 0.4)),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.memory(_buktiTransfer!, width: 44, height: 44, fit: BoxFit.cover),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _buktiNama ?? "Bukti transfer",
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFF1A202C)),
+                ),
+                const SizedBox(height: 2),
+                Text("Gambar siap dikirim", style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade500)),
+              ],
+            ),
+          ),
+          GestureDetector(
+            onTap: () => setState(() {
+              _buktiTransfer = null;
+              _buktiNama = null;
+            }),
+            child: Padding(
+              padding: const EdgeInsets.all(4),
+              child: Icon(Icons.close_rounded, size: 18, color: Colors.grey.shade600),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _pilihBuktiTransfer() async {
+    if (_memilihBukti) return;
+    setState(() => _memilihBukti = true);
+    try {
+      final picked = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+      );
+      if (picked == null) return;
+      final bytes = await picked.readAsBytes();
+      if (!mounted) return;
+      setState(() {
+        _buktiTransfer = bytes;
+        _buktiNama = picked.name;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text('Gagal mengambil gambar. Coba lagi.'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+    } finally {
+      if (mounted) setState(() => _memilihBukti = false);
+    }
+  }
+
   Widget _buildBottomBar() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -300,4 +443,39 @@ class _PembayaranPageState extends State<PembayaranPage> {
       ),
     );
   }
+}
+
+/// Garis putus-putus untuk kotak unggah bukti transfer.
+class _DashedBorderPainter extends CustomPainter {
+  const _DashedBorderPainter({required this.color});
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.2;
+
+    final path = Path()
+      ..addRRect(
+        RRect.fromRectAndRadius(Offset.zero & size, const Radius.circular(12)),
+      );
+
+    const dash = 5.0;
+    const gap = 4.0;
+    for (final metric in path.computeMetrics()) {
+      var distance = 0.0;
+      while (distance < metric.length) {
+        final next = (distance + dash).clamp(0.0, metric.length);
+        canvas.drawPath(metric.extractPath(distance, next), paint);
+        distance = next + gap;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _DashedBorderPainter oldDelegate) =>
+      oldDelegate.color != color;
 }

@@ -5,7 +5,7 @@ import 'package:flutter_agrowisatajeruk/core/theme/app_colors.dart';
 
 import '../../domain/entities/education_activity.dart';
 import '../viewmodels/education_activity_view_model.dart';
-import '../widgets/detail_aktivitas_template.dart';
+import '../widgets/education_detail_layout.dart';
 
 /// Halaman detail aktivitas "Wawancara Petani".
 class WawancaraPage extends StatefulWidget {
@@ -44,7 +44,11 @@ class _WawancaraPageState extends State<WawancaraPage> {
             body: Center(child: CircularProgressIndicator()),
           );
         }
-        return DetailAktivitasTemplate(data: activity);
+        return EducationDetailLayout(
+          data: activity,
+          priceFormatted: _viewModel.hargaFormatted,
+          activitySectionTitle: 'Aktivitas',
+        );
       },
     );
   }

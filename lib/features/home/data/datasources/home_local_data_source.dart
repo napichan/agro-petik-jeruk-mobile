@@ -21,7 +21,7 @@ class HomeLocalDataSource implements HomeDataSource {
       deskripsi:
           'Bebas petik & makan sepuasnya langsung di Kebun keprok lereng sejuk Solorejo.',
       harga: 20000,
-      image: 'assets/images/Kebun Jeruk Solorejo.png',
+      image: 'assets/images/kebun_jeruk_solorejo.png',
       chipLabel: 'Makan Sepuasnya',
     ),
     PopularActivity(
